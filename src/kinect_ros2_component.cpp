@@ -108,6 +108,9 @@ to a new cv::Mat. This way, the callback only used to set a flag that indicates 
 has arrived. The flag is unset when a msg is published */
 void KinectRosComponent::depth_cb(freenect_device * dev, void * depth_ptr, uint32_t timestamp)
 {
+  (void)dev;       // Mark 'dev' as unused
+  (void)timestamp; // Mark 'timestamp' as unused
+
   if (_depth_flag) {
     return;
   }
@@ -122,6 +125,9 @@ void KinectRosComponent::depth_cb(freenect_device * dev, void * depth_ptr, uint3
 
 void KinectRosComponent::rgb_cb(freenect_device * dev, void * rgb_ptr, uint32_t timestamp)
 {
+  (void)dev;       // Mark 'dev' as unused
+  (void)timestamp; // Mark 'timestamp' as unused
+
   if (_rgb_flag) {
     return;
   }
