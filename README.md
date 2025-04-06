@@ -14,7 +14,7 @@ For now, it only supports a single Kinect device. (If multiple devices present, 
 
 ## Instalation
 ### 1. Install libfreenect
-The package was tested using a manual build from the [libfreenect](https://github.com/OpenKinect/libfreenect) github because the Kinect used, had a firmware version that requires specific build flags.
+The package was tested using a manual build from the [libfreenect](https://github.com/OpenKinect/libfreenect) github because the Kinect used had a firmware version that requires specific build flags. 
 
 ### 2. Copy the repo
 Copy the repo to your workspace source folder.
@@ -38,6 +38,82 @@ colcon build
 ~~~
 
 ## Using this package
+Test it by running one of the provided python launch scripts.
+~~~
+ros2 launch kinect_ros2 pointcloud.launch.py
+~~~
+Or
+~~~
+ros2 launch kinect_ros2 showimage.launch.py
+~~~
 
 ## Devices tested
 * Kinect Model 1473
+* Kinect Model 1414 (Both Normal and [Lite Mod version](https://medium.com/robotics-weekends/how-to-turn-old-kinect-into-a-compact-usb-powered-rgbd-sensor-f23d58e10eb0))
+
+## Possible issues
+### kinect_ros2_node: error while loading shared libraries `libfreenect.so0`
+If you get the error message `kinect_ros2_node: error while loading shared libraries: libfreenect.so.0: cannot open shared object file: No such file or directory`
+- Double-check your libfreenect intallation first.
+- Check if you can see the libfreenect.so.0 file present in `usr/local/lib` path.
+
+If you can see the libfreenect.so.0 file located in lib, there are a few things you could try:
+
+---
+
+#### 1. Add lib to `LD_LIBRARY_PATH`
+Temporarily add lib to the `LD_LIBRARY_PATH` environment variable:
+```bash
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+```
+
+To verify, run:
+```bash
+echo $LD_LIBRARY_PATH
+```
+
+Then, try running your node again:
+```bash
+ros2 launch kinect_ros2 pointcloud.launch.py
+```
+
+---
+
+#### 2. Make the Change Permanent
+To avoid setting `LD_LIBRARY_PATH` every time, add the export command to your `~/.bashrc` file:
+```bash
+echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+#### 3. Update the Dynamic Linker Cache
+Alternatively, you can add lib to the dynamic linker configuration:
+
+1. Add lib to the linker configuration:
+   ```bash
+   echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/libfreenect.conf
+   ```
+
+2. Update the linker cache:
+   ```bash
+   sudo ldconfig
+   ```
+
+3. Verify that the library is now found:
+   ```bash
+   ldd ~/ws/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node | grep libfreenect
+   ```
+
+---
+
+#### 4. Rebuild and Run
+After making these changes, rebuild your workspace and run the node again:
+```bash
+colcon build --packages-select kinect_ros2
+source ~/ws/install/setup.bash
+ros2 launch kinect_ros2 pointcloud.launch.py
+```
+
+This should resolve the issue.
