@@ -13,26 +13,26 @@ def generate_launch_description():
         "kinect_ros2"
     )
 
-    return LaunchDescription(
-        [
 
-            Node(
+    kinect_node=Node(
                 package="kinect_ros2",
                 executable="kinect_ros2_node",
                 name="kinect_ros2",
                 namespace="kinect",
-            ),
-
-            Node(
-                package='tf2_ros',
-                executable='static_transform_publisher',
-                name='camera_base_to_optical',
-                arguments=[
-                    '--x', '0', '--y', '0', '--z', '1.0', 
-                    '--yaw', '1.5708', '--pitch', '0', '--roll', '-1.5708',
-                    '--frame-id', 'camera_link',
-                    '--child-frame-id', 'kinect_depth'
-                ]
             )
-        ]
-    )
+    
+    static_frame_node= Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='camera_base_to_optical',
+            arguments=[
+                '--x', '0', '--y', '0', '--z', '1.0', 
+                '--yaw', '1.5708', '--pitch', '0', '--roll', '-1.5708',
+                '--frame-id', 'kinect_camera_link',
+                '--child-frame-id', 'kinect_depth'
+            ]
+        )
+    return LaunchDescription([
+            static_frame_node,
+            kinect_node
+        ])
